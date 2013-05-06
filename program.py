@@ -17,14 +17,18 @@ def cleanHtmlRegex(i):
   return i
 
 
-def showsome(searchfor):  
-
+def topWords(searchfor):  
+    
+    #array for all the words on the page
     words = []
   
+    #creates a google search on wikipedia with the city and state
     query = urllib.urlencode({'q': searchfor})
     url = 'http://ajax.googleapis.com/ajax/services/search/web?v=1.0&%s' % query
     request = urllib2.Request(url, headers={'User-Agent' : "Mozilla/5.0"})
     search_response = urllib2.urlopen(request)
+    
+    #gets all the search results
     search_results = search_response.read()
     results = json.loads(search_results)
     data = results['responseData']
@@ -40,8 +44,8 @@ def showsome(searchfor):
       
       #Tell Beautiful Soup to locate all of the p tags and store them in a list
       paragList = soup.findAll('div')
-      
-      # Print all of the paragraphs to screen
+     
+      #puts all the words into an array
       for i in paragList: 
           i = cleanHtmlRegex(i)
           words = words + i.split()
@@ -78,15 +82,12 @@ def main(argc=None):
       #check the users input
       check = checkInput(uCity.strip(),uState.strip())
       
-      #grabs the top sites on wikipedia
+      #grabs the top sites on wikipedia and prints out the top 20 most used words
       userLocation = userLocation + ' site:wikipedia.org'
-      showsome(userLocation)
+      topWords(userLocation)
     except Exception, e:
       print "FAIL: %s" % e
 
-  #check the pages for the top 20 most used words
-
-  #print out the words and count
 
 if __name__ == "__main__":
   sys.exit(main())
