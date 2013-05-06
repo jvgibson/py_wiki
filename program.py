@@ -23,7 +23,8 @@ def showsome(searchfor):
   
     query = urllib.urlencode({'q': searchfor})
     url = 'http://ajax.googleapis.com/ajax/services/search/web?v=1.0&%s' % query
-    search_response = urllib.urlopen(url)
+    request = urllib2.Request(url, headers={'User-Agent' : "Mozilla/5.0"})
+    search_response = urllib2.urlopen(request)
     search_results = search_response.read()
     results = json.loads(search_results)
     data = results['responseData']
