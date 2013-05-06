@@ -2,7 +2,9 @@
 import sys
 import urllib
 import json
-
+import html5lib
+import urllib2
+from html5lib import treebuilders, treewalkers, serializer
 
 def showsome(searchfor):
     query = urllib.urlencode({'q': searchfor})
@@ -16,7 +18,13 @@ def showsome(searchfor):
     print 'Top %d hits:' % len(hits)
     for h in hits: print ' ', h['url']
     print 'For more results, see %s' % data['cursor']['moreResultsUrl']
-
+    
+    ret = []
+    page =urllib2.urlopen("http://www.ehow.com/how_8521125_use-html5lib-python.html")
+    for line in page.read():
+      ret += line.split()
+    print ret
+      
 
 def checkInput(city, state):
 
@@ -45,9 +53,8 @@ def main(argc=None):
       #grabs the top sites on wikipedia
       userLocation = userLocation + ' site:wikipedia.org'
       showsome(userLocation)
-    except:
-      print 'Invalid Input, Please try again'
-
+    except Exception, e:
+      print "Couldn't do it: %s" % e
 
   #check the pages for the top 20 most used words
 
