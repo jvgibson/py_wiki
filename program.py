@@ -1,30 +1,57 @@
 #! /usr/bin/env python
 import sys
 import urllib
-import json
-import html5lib
 import urllib2
-from html5lib import treebuilders, treewalkers, serializer
+import json
+from urllib import urlopen
+from BeautifulSoup import BeautifulSoup
+import re
+from collections import Counter
 
-def showsome(searchfor):
+
+def cleanHtmlRegex(i):
+  i = str(i)
+  regexPatClean = re.compile(r'<[^<]*?/?>')
+  i = regexPatClean.sub('', i)
+  i = re.sub('&\w+;','',i)
+  return i
+
+
+def showsome(searchfor):  
+
+    words = []
+  
     query = urllib.urlencode({'q': searchfor})
     url = 'http://ajax.googleapis.com/ajax/services/search/web?v=1.0&%s' % query
     search_response = urllib.urlopen(url)
     search_results = search_response.read()
     results = json.loads(search_results)
     data = results['responseData']
-    print 'Total results: %s' % data['cursor']['estimatedResultCount']
     hits = data['results']
-    print 'Top %d hits:' % len(hits)
-    for h in hits: print ' ', h['url']
-    print 'For more results, see %s' % data['cursor']['moreResultsUrl']
-    
-    ret = []
-    page =urllib2.urlopen("http://www.ehow.com/how_8521125_use-html5lib-python.html")
-    for line in page.read():
-      ret += line.split()
-    print ret
+
+
+    for h in hits:
+      #Copy all of the content from the provided web page
+      webpage = urlopen(h['url']).read()
       
+      #Pass the article to the Beautiful Soup Module
+      soup = BeautifulSoup(webpage)
+      
+      #Tell Beautiful Soup to locate all of the p tags and store them in a list
+      paragList = soup.findAll('div')
+      
+      # Print all of the paragraphs to screen
+      for i in paragList: 
+          i = cleanHtmlRegex(i)
+          words = words + i.split()
+    
+    counter = Counter()
+    for word in words:
+      counter[word] += 1
+
+    print counter.most_common(20)
+
+
 
 def checkInput(city, state):
 
@@ -54,7 +81,7 @@ def main(argc=None):
       userLocation = userLocation + ' site:wikipedia.org'
       showsome(userLocation)
     except Exception, e:
-      print "Couldn't do it: %s" % e
+      print "FAIL: %s" % e
 
   #check the pages for the top 20 most used words
 
